@@ -36,7 +36,22 @@ const TypingTest: React.FC<TypingTestProps> = ({ mode, timeLimit }) => {
   const inputRef = useRef<HTMLInputElement>(null);
   const timerRef = useRef<number | null>(null);
 
+  // Initialize text based on mode
   useEffect(() => {
+    let testText = '';
+
+    switch (mode) {
+      case 'code':
+        testText = getRandomText('code');
+        break;
+      case 'custom':
+        testText = "Type your custom text here. You can paste any text you want to practice with.";
+        break;
+      default:
+        testText = getRandomText('normal');
+    }
+
+    setText(testText);
     resetTest();
   }, [mode]);
 
@@ -44,6 +59,7 @@ const TypingTest: React.FC<TypingTestProps> = ({ mode, timeLimit }) => {
     inputRef.current?.focus();
   }, []);
 
+  // Convert text to characters array
   useEffect(() => {
     if (text) {
       const chars = text.split('').map((char) => ({
@@ -86,14 +102,17 @@ const TypingTest: React.FC<TypingTestProps> = ({ mode, timeLimit }) => {
     };
   }, [isStarted, isFinished, startTime, mode, timeLimit]);
 
+  // Calculate and update stats
   const updateStats = useCallback((elapsed: number) => {
     const correctChars = characters.filter(char => char.status === 'correct').length;
     const incorrectChars = characters.filter(char => char.status === 'incorrect').length;
     const totalProcessed = correctChars + incorrectChars;
 
+    // Words per minute: (characters / 5) / minutes
     const minutes = elapsed / 60;
     const wpm = minutes > 0 ? Math.round((correctChars / 5) / minutes) : 0;
 
+    // Accuracy percentage
     const accuracy = totalProcessed > 0
       ? Math.round((correctChars / totalProcessed) * 100)
       : 100;
@@ -108,6 +127,7 @@ const TypingTest: React.FC<TypingTestProps> = ({ mode, timeLimit }) => {
     });
   }, [characters]);
 
+  // Start the test
   const startTest = () => {
     setIsStarted(true);
     setStartTime(Date.now());
@@ -115,8 +135,8 @@ const TypingTest: React.FC<TypingTestProps> = ({ mode, timeLimit }) => {
     inputRef.current?.focus();
   };
 
+  // Reset the test
   const resetTest = () => {
-    // Reset all state
     setInput('');
     setCurrentIndex(0);
     setIsStarted(false);
@@ -135,21 +155,6 @@ const TypingTest: React.FC<TypingTestProps> = ({ mode, timeLimit }) => {
     if (timerRef.current) {
       clearInterval(timerRef.current);
     }
-
-    let testText = '';
-    switch (mode) {
-      case 'code':
-        testText = getRandomText('code');
-        break;
-      case 'custom':
-        testText = "Type your custom text here. You can paste any text you want to practice with.";
-        break;
-      default:
-        testText = getRandomText('normal');
-    }
-    setText(testText);
-
-    startTest();
   };
 
   // Finish the test
@@ -290,6 +295,16 @@ const TypingTest: React.FC<TypingTestProps> = ({ mode, timeLimit }) => {
               className={`flex-grow bg-gray-700/50 border ${isStarted ? 'border-cyan-600' : 'border-gray-600'} rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-cyan-500/50 transition-all`}
               placeholder={isStarted ? '' : 'Click here or press Start to begin typing...'}
             />
+
+            {!isStarted && (
+              <button
+                onClick={startTest}
+                className="px-4 py-3 rounded-lg bg-gradient-to-r from-cyan-600 to-purple-600 hover:from-cyan-500 hover:to-purple-500 transition-colors flex items-center gap-2"
+              >
+                <Play size={16} />
+                <span>Start</span>
+              </button>
+            )}
           </div>
 
           <div className="grid grid-cols-3 gap-4 mt-6">
