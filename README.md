@@ -4,6 +4,9 @@
 
 An interactive typing test application designed to help users improve their typing speed and accuracy. The application supports multiple modes, including Classic, Endless, Precision, Blind, Code, and Custom, catering to different typing practice needs.
 
+## Live Demo
+https://typee-master.netlify.app/
+
 ## Features
 
 - **Multiple Modes**:
